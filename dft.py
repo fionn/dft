@@ -10,9 +10,9 @@ def fourier(f, s = -1):
     return x 
 
 def cround(z):
-    if round(z.imag) == 0:
-        return round(z.real)
-    return round(z.real) + round(z.imag) * 1j
+    if round(z.imag, 9) == 0:
+        return round(z.real, 9)
+    return round(z.real, 9) + round(z.imag, 9) * 1j
 
 def cprint(f):
     print(list(map(cround, f)))
