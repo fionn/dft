@@ -10,15 +10,12 @@ class Vector(Sequence):
     def __init__(self, *args):
         super().__init__()
         self.N = len(args)
+
+        if not self._power_of_two():
+            raise Exception("N != 2^n")
+
         self.value = args
         self.omega = 2j * pi / self.N
-
-    @staticmethod
-    def _cround(z):
-        n = 8
-        if round(z.imag, n) == 0:
-            return round(z.real, n)
-        return round(z.real, n) + round(z.imag, n) * 1j
 
     def __len__(self):
         return self.N
@@ -44,8 +41,24 @@ class Vector(Sequence):
     def __add__(self, other):
         return Vector(*tuple(x + y for x, y in zip(self, other)))
 
+    @staticmethod
+    def _cround(z):
+        n = 8
+        if round(z.imag, n) == 0:
+            return round(z.real, n)
+        return round(z.real, n) + round(z.imag, n) * 1j
+
+    def _power_of_two(self):
+        return self.N & self.N - 1 == 0 and self.N > 0
+
     def dot(self, other):
         return sum(u * v for u, v in zip(self, other))
+
+    def hermitian(self, other):
+        return sum(u * v.conjugate() for u, v in zip(self, other))
+
+    def norm(self):
+        return sqrt(self.hermitian(self)).real
 
     def dft(self, s = -1):
         '''Naive FT'''
@@ -57,7 +70,7 @@ class Vector(Sequence):
     def fft(self, s = -1):
         '''Radix-2 Cooley-Tukey'''
 
-        if self.N <= 1:
+        if self.N == 1:
             return self
 
         f_even = Vector(*self.value[::2])
@@ -76,7 +89,7 @@ class Vector(Sequence):
         return Vector(*x)
 
 if __name__ == "__main__":
-    f = Vector(0, 1, 0, -1)
+    f = Vector(1j, -1)
     print(f)
     f_tilde = f.fft()
     print(f_tilde)
